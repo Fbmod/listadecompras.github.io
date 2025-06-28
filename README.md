@@ -1,7 +1,7 @@
 🛒 Lista de Compras Inteligente
 Bem-vindo ao projeto da Lista de Compras Inteligente! Esta é uma aplicação web progressiva (PWA) desenvolvida para simplificar a sua ida ao supermercado. Crie e gira múltiplas listas, adicione itens de forma inteligente e obtenha sugestões de receitas com base nos seus produtos.
 
-Aceda à aplicação aqui: https://fbmod.github.io/
+Aceda à aplicação aqui: ](https://fbmod.github.io/listadecompras.github.io/)
 
 ![Imagem da aplicação de lista de compras]
 
@@ -38,7 +38,7 @@ Inteligência Artificial: API Google Gemini para o processamento de linguagem na
 Hospedagem: GitHub Pages.
 
 🚀 Como Usar
-Aceda ao link da aplicação: https://fbmod.github.io/
+Aceda ao link da aplicação: ](https://fbmod.github.io/listadecompras.github.io/)
 
 Crie uma conta gratuita ou faça login se já tiver uma.
 
