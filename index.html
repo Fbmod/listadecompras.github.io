@@ -7,9 +7,10 @@
     <!-- PWA Tags -->
     <meta name="theme-color" content="#4f46e5"/>
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/4f46e5/ffffff?text=Lista">
+    <!-- PASSO 1: Substitua o conteúdo de 'href' abaixo -->
+    <link rel="apple-touch-icon" href="COLE_AQUI_O_SEU_ICONE_BASE64">
 
-    <title>Lista de Compras Inteligente</title>
+    <title>Minha Lista de Compras</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,9 +61,9 @@
                 <!-- Login Form -->
                 <div id="login-form">
                     <div class="text-center mb-8">
-                        <i class="fas fa-leaf text-5xl text-indigo-500 mb-4"></i>
+                        <i class="fas fa-shopping-basket text-5xl text-indigo-500 mb-4"></i>
                         <h1 class="text-3xl font-bold text-gray-900">Bem-vindo(a)</h1>
-                        <p class="text-gray-600 mt-2">Aceda às suas listas de compras.</p>
+                        <p class="text-gray-600 mt-2">Aceda à sua lista de compras.</p>
                     </div>
                     <div class="space-y-4">
                         <input type="email" id="login-email" placeholder="Email" class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" required>
@@ -167,6 +168,12 @@
                     <p class="text-gray-500 text-xl">Sua lista está vazia.</p>
                 </div>
 
+                <!-- Total Container -->
+                <div id="total-container" class="mt-8 p-4 bg-indigo-50 rounded-xl text-center hidden">
+                    <p class="text-lg text-gray-600">Total no Carrinho</p>
+                    <p id="total-amount" class="text-4xl font-bold text-indigo-600">R$ 0,00</p>
+                </div>
+
                 <div id="list-actions" class="flex flex-col sm:flex-row justify-end gap-4 mt-8 hidden">
                     <button id="clear-checked-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"><i class="fas fa-eraser"></i> Limpar Comprados</button>
                     <button id="clear-all-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"><i class="fas fa-trash-alt"></i> Limpar Tudo</button>
@@ -200,11 +207,17 @@
                 <input type="checkbox" class="item-checkbox w-6 h-6 text-indigo-500 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer flex-shrink-0">
                 <div class="item-name-container flex-grow cursor-pointer min-w-0">
                     <span class="item-name-text text-lg text-gray-800 font-medium truncate"></span>
+                    <span class="item-price-text text-sm text-green-600 font-semibold ml-2"></span>
                 </div>
             </div>
-            <button class="delete-item-btn text-red-400 hover:text-red-600 transition ml-2 flex-shrink-0 p-2" aria-label="Deletar item">
-                <i class="fas fa-trash-alt fa-lg"></i>
-            </button>
+            <div class="flex items-center flex-shrink-0">
+                <button class="edit-price-btn text-gray-400 hover:text-indigo-600 transition ml-2 p-2" aria-label="Adicionar/Editar preço">
+                    <i class="fas fa-dollar-sign fa-lg"></i>
+                </button>
+                <button class="delete-item-btn text-red-400 hover:text-red-600 transition ml-2 p-2" aria-label="Deletar item">
+                    <i class="fas fa-trash-alt fa-lg"></i>
+                </button>
+            </div>
         </div>
     </template>
 
@@ -215,7 +228,30 @@
         import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- PWA Setup ---
-        const manifestContent={"name":"Listas de Compras Inteligentes","short_name":"Listasdecompras","start_url":".","display":"standalone","background_color":"#f0f2f5","theme_color":"#4f46e5","description":"Crie e gerencie múltiplas listas de compras com IA e Firebase.","icons":[{"src":"https://imgur.com/Cn1SeJG","sizes":"192x192","type":"image/png"},{"src":"https://imgur.com/Cn1SeJG","sizes":"512x512","type":"image/png"}]};const serviceWorkerCode="const CACHE_NAME='shopping-lists-cache-v14';const urlsToCache=['/','https://cdn.tailwindcss.com','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urlsToCache)))});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});";const manifestBlob=new Blob([JSON.stringify(manifestContent)],{type:'application/json'});const manifestURL=URL.createObjectURL(manifestBlob);document.querySelector('link[rel="manifest"]').setAttribute('href',manifestURL);if('serviceWorker'in navigator){const swBlob=new Blob([serviceWorkerCode],{type:'application/javascript'});const swURL=URL.createObjectURL(swBlob);navigator.serviceWorker.register(swURL).catch(error=>{console.warn('SW registration failed:',error);});}
+        const manifestContent={
+            "name":"Minha Lista de Compras",
+            "short_name":"Minha Lista",
+            "start_url":".",
+            "display":"standalone",
+            "background_color":"#f0f2f5",
+            "theme_color":"#4f46e5",
+            "description":"Crie e gerencie suas listas de compras com IA.",
+            "icons":[
+                // PASSO 2: Substitua o conteúdo de 'src' abaixo
+                {"src":"data:image/png;base64,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","sizes":"192x192","type":"image/jpeg"},
+                // PASSO 3: Substitua o conteúdo de 'src' abaixo
+                {"src":"data:image/png;base64,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","sizes":"512x512","type":"image/jpeg"}
+            ]
+        };
+        const serviceWorkerCode="const CACHE_NAME='shopping-lists-cache-v16';const urlsToCache=['/','https://cdn.tailwindcss.com','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urlsToCache)))});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});";
+        const manifestBlob=new Blob([JSON.stringify(manifestContent)],{type:'application/json'});
+        const manifestURL=URL.createObjectURL(manifestBlob);
+        document.querySelector('link[rel="manifest"]').setAttribute('href',manifestURL);
+        if('serviceWorker'in navigator){
+            const swBlob=new Blob([serviceWorkerCode],{type:'application/javascript'});
+            const swURL=URL.createObjectURL(swBlob);
+            navigator.serviceWorker.register(swURL).catch(error=>{console.warn('SW registration failed:',error);});
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             // --- FIREBASE & APP STATE ---
@@ -275,6 +311,8 @@
             const toastIcon = document.getElementById('toast-icon');
             const toastMessage = document.getElementById('toast-message');
             const itemTemplate = document.getElementById('item-template');
+            const totalContainer = document.getElementById('total-container');
+            const totalAmount = document.getElementById('total-amount');
             
             // --- FIREBASE INITIALIZATION AND AUTHENTICATION ---
             const initializeFirebase = async () => {
@@ -551,16 +589,27 @@ service cloud.firestore {
                 listActions.classList.toggle('hidden', !hasItems);
                 summaryBtn.classList.toggle('hidden', !hasItems);
                 recipeBtn.classList.toggle('hidden', activeItems.length === 0);
+
+                calculateAndDisplayTotal();
             };
 
             const createItemElement = (item) => {
                 const itemElement = itemTemplate.content.cloneNode(true).firstElementChild;
                 itemElement.dataset.itemId = item.id;
                 const nameSpan = itemElement.querySelector('.item-name-text');
+                const priceSpan = itemElement.querySelector('.item-price-text');
                 const checkbox = itemElement.querySelector('.item-checkbox');
+                const editPriceBtn = itemElement.querySelector('.edit-price-btn');
                 const deleteBtn = itemElement.querySelector('.delete-item-btn');
 
                 nameSpan.textContent = item.name + (item.quantity ? ` - ${item.quantity}` : '');
+
+                if (typeof item.price === 'number') {
+                    priceSpan.textContent = formatCurrency(item.price);
+                } else {
+                    priceSpan.textContent = '';
+                }
+
                 checkbox.checked = item.checked;
                 itemElement.classList.toggle('opacity-60', item.checked);
                 itemElement.classList.toggle('bg-green-50', item.checked);
@@ -568,6 +617,7 @@ service cloud.firestore {
                 nameSpan.classList.toggle('text-gray-500', item.checked);
                 
                 checkbox.addEventListener('change', () => toggleChecked(item.id));
+                editPriceBtn.addEventListener('click', () => showPriceModal(item.id));
                 deleteBtn.addEventListener('click', () => deleteItem(item.id));
                 deleteBtn.setAttribute('aria-label', `Deletar item ${item.name}`);
                 
@@ -625,7 +675,8 @@ service cloud.firestore {
                     name: itemData.name,
                     quantity: itemData.quantity || '',
                     category: itemData.category || 'Outros',
-                    checked: false
+                    checked: false,
+                    price: null
                 }));
 
                 const updatedItems = [...newItems, ...(list.items || [])];
@@ -779,6 +830,65 @@ service cloud.firestore {
             };
             
             // --- UI HELPER FUNCTIONS ---
+            const formatCurrency = (value) => {
+                if (typeof value !== 'number') {
+                    value = 0;
+                }
+                return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+            };
+
+            const calculateAndDisplayTotal = () => {
+                const list = getCurrentList();
+                if (!list || !list.items) {
+                    totalContainer.classList.add('hidden');
+                    return;
+                }
+
+                const total = list.items
+                    .filter(item => item.checked && typeof item.price === 'number')
+                    .reduce((sum, item) => sum + item.price, 0);
+
+                if (total > 0) {
+                    totalAmount.textContent = formatCurrency(total);
+                    totalContainer.classList.remove('hidden');
+                } else {
+                    totalContainer.classList.add('hidden');
+                }
+            };
+
+            const showPriceModal = (itemId) => {
+                const list = getCurrentList();
+                const item = list.items.find(i => i.id === itemId);
+                if (!item) return;
+
+                const bodyHtml = `
+                    <p class="mb-2">Digite o preço para <strong>${item.name}</strong>:</p>
+                    <input type="number" id="price-input" step="0.01" min="0" placeholder="Ex: 12.50" class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" value="${item.price || ''}">
+                `;
+
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg';
+                saveBtn.textContent = 'Salvar Preço';
+                saveBtn.onclick = () => {
+                    const priceInput = document.getElementById('price-input');
+                    const newPrice = parseFloat(priceInput.value);
+
+                    const updatedItems = list.items.map(i =>
+                        i.id === itemId ? { ...i, price: (!isNaN(newPrice) && newPrice >= 0) ? newPrice : null } : i
+                    );
+                    updateCurrentListItems(updatedItems);
+                    hideModal();
+                };
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg';
+                cancelBtn.textContent = 'Cancelar';
+                cancelBtn.onclick = hideModal;
+
+                showModal(`Definir Preço`, bodyHtml, [cancelBtn, saveBtn]);
+                document.getElementById('price-input').focus();
+            };
+
             const toBase64 = file => new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
