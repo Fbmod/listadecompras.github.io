@@ -761,7 +761,7 @@ service cloud.firestore {
             const callGemini = async (payload) => {
                 // IMPORTANT: Replace "" with your actual Google AI Studio API Key
                 const apiKey = "AIzaSyCS2hTaFPMGWth9L_a7mDDlFJg5gb2ndxk"; 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -1061,3 +1061,4 @@ service cloud.firestore {
     </script>
 </body>
 </html>
+
