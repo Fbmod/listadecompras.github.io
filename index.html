@@ -3,1064 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- PWA Tags -->
     <meta name="theme-color" content="#4f46e5"/>
-    <link rel="manifest" href="manifest.json">
-    <!-- PASSO 1: Substitua o conteúdo de 'href' abaixo -->
-    <link rel="icon" type="image/png" href="favicon.ico">
-
-    <title>Minha Lista de Compras</title>
+    
+    <title>Minha Lista Inteligente</title>
+    
+    <!-- Estilos e Fontes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
-        }
-        /* Animations and Visual Styles */
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; -webkit-tap-highlight-color: transparent; }
+        /* Animações */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        .spinner {
-            animation: spin 1s linear infinite;
-            border: 3px solid rgba(79, 70, 229, 0.3); /* indigo-500 with opacity */
-            border-top-color: #4f46e5; /* indigo-500 */
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .modal-overlay { transition: opacity 0.3s ease; }
-        .modal-content { animation: fadeIn 0.3s ease-out forwards; }
-        .toast {
-            visibility: hidden; opacity: 0;
-            transition: opacity 0.5s, visibility 0.5s, transform 0.5s;
-            transform: translateY(20px);
-        }
-        .toast.show {
-            visibility: visible; opacity: 1;
-            transform: translateY(0);
-        }
+        .spinner { animation: spin 1s linear infinite; border: 3px solid rgba(79, 70, 229, 0.3); border-top-color: #4f46e5; border-radius: 50%; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Toast Notification */
+        .toast { visibility: hidden; opacity: 0; transition: opacity 0.5s, transform 0.5s; transform: translateY(20px); }
+        .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
     </style>
 </head>
-<body class="flex items-start justify-center min-h-screen p-2 sm:p-4">
+<body class="flex items-start justify-center min-h-screen p-2 sm:p-4 text-gray-800">
 
     <div id="app-container" class="w-full max-w-2xl my-4">
         
-        <!-- LOADING SCREEN -->
-        <div id="loading-screen" class="text-center p-10">
+        <!-- TELA DE CARREGAMENTO -->
+        <div id="loading-screen" class="text-center p-10 mt-10">
             <div class="spinner w-12 h-12 mx-auto"></div>
-            <p class="text-gray-600 mt-4 text-lg">A verificar sessão...</p>
+            <p class="text-gray-600 mt-4">Carregando sua despensa...</p>
         </div>
 
-        <!-- AUTH SCREEN -->
+        <!-- TELA DE LOGIN / CADASTRO -->
         <div id="auth-screen" class="hidden">
-            <div class="bg-white rounded-2xl shadow-xl p-5 sm:p-8 fade-in">
-                <!-- Login Form -->
-                <div id="login-form">
-                    <div class="text-center mb-8">
-                        <i class="fas fa-shopping-basket text-5xl text-indigo-500 mb-4"></i>
-                        <h1 class="text-3xl font-bold text-gray-900">Bem-vindo(a)</h1>
-                        <p class="text-gray-600 mt-2">Aceda à sua lista de compras.</p>
+            <div class="bg-white rounded-2xl shadow-xl p-6 fade-in border border-gray-100">
+                <div class="text-center mb-6">
+                    <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-shopping-basket text-3xl text-indigo-600"></i>
                     </div>
-                    <div class="space-y-4">
-                        <input type="email" id="login-email" placeholder="Email" class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" required>
-                        <input type="password" id="login-password" placeholder="Palavra-passe" class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" required>
-                        
-                        <!-- Keep Logged In Checkbox -->
-                        <div class="flex items-center justify-between my-4">
-                            <label for="keep-logged-in" class="flex items-center text-sm text-gray-600 cursor-pointer">
-                                <input type="checkbox" id="keep-logged-in" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" checked>
-                                <span class="ml-2">Manter sessão iniciada</span>
-                            </label>
-                        </div>
-
-                        <button id="login-btn" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-lg px-6 py-3 rounded-lg transition-transform transform hover:scale-105 flex items-center justify-center gap-2">
-                            <span>Entrar</span>
-                        </button>
-                    </div>
-                    <p class="text-center text-sm text-gray-500 mt-6">
-                        Não tem conta? <a href="#" id="show-register-link" class="font-semibold text-indigo-500 hover:underline">Registe-se aqui</a>.
-                    </p>
+                    <h1 class="text-2xl font-bold text-gray-900">Minha Lista</h1>
+                    <p class="text-gray-500 text-sm">Organize suas compras sem complicações.</p>
                 </div>
-                <!-- Register Form -->
-                <div id="register-form" class="hidden">
-                     <div class="text-center mb-8">
-                        <i class="fas fa-user-plus text-5xl text-indigo-500 mb-4"></i>
-                        <h1 class="text-3xl font-bold text-gray-900">Criar Conta</h1>
-                        <p class="text-gray-600 mt-2">É rápido e fácil.</p>
-                    </div>
-                    <div class="space-y-4">
-                        <input type="email" id="register-email" placeholder="Email" class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" required>
-                        <input type="password" id="register-password" placeholder="Palavra-passe (mín. 6 caracteres)" class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" required>
-                        <button id="register-btn" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold text-lg px-6 py-3 rounded-lg transition-transform transform hover:scale-105 flex items-center justify-center gap-2">
-                            <span>Registar</span>
-                        </button>
-                    </div>
-                    <p class="text-center text-sm text-gray-500 mt-6">
-                        Já tem conta? <a href="#" id="show-login-link" class="font-semibold text-indigo-500 hover:underline">Aceda aqui</a>.
-                    </p>
+                
+                <!-- Formulário de Login -->
+                <div id="login-form" class="space-y-4">
+                    <input type="email" id="login-email" placeholder="Email" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50">
+                    <input type="password" id="login-password" placeholder="Senha" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50">
+                    <button id="login-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-200">Entrar</button>
+                    <p class="text-center text-sm text-gray-500 mt-4">Não tem conta? <a href="#" id="show-register" class="text-indigo-600 font-bold hover:underline">Criar agora</a></p>
+                </div>
+
+                <!-- Formulário de Cadastro -->
+                <div id="register-form" class="hidden space-y-4">
+                    <input type="email" id="reg-email" placeholder="Seu melhor Email" class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    <input type="password" id="reg-pass" placeholder="Senha (mínimo 6 caracteres)" class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    <button id="register-btn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-teal-200">Cadastrar</button>
+                    <p class="text-center text-sm text-gray-500 mt-4"><a href="#" id="show-login" class="text-indigo-600 font-bold hover:underline">Voltar para Login</a></p>
                 </div>
             </div>
         </div>
 
-        <!-- HOME SCREEN -->
-        <div id="home-screen" class="hidden">
-            <div class="bg-white rounded-2xl shadow-xl p-5 sm:p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h1 class="text-3xl font-bold text-gray-900">Suas Listas</h1>
-                     <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center gap-2">
-                        <i class="fas fa-sign-out-alt"></i> Sair
-                    </button>
+        <!-- TELA INICIAL (LISTAS) -->
+        <div id="home-screen" class="hidden fade-in">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Suas Listas</h1>
+                    <button id="logout-btn" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-xl mb-6 border space-y-3">
-                    <label for="new-list-name" class="block text-gray-700 font-semibold">Criar Nova Lista</label>
+                
+                <div class="flex gap-2 mb-6">
+                    <input type="text" id="new-list-name" placeholder="Ex: Churrasco, Mês..." class="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button id="add-list-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 rounded-lg transition shadow-md"><i class="fas fa-plus"></i></button>
+                </div>
+
+                <div id="lists-container" class="grid gap-3 sm:grid-cols-2">
+                    <!-- As listas aparecerão aqui via JavaScript -->
+                </div>
+                
+                <p id="no-lists-msg" class="text-center text-gray-400 mt-8 hidden">Nenhuma lista criada ainda.</p>
+            </div>
+        </div>
+
+        <!-- TELA DA LISTA (ITENS) -->
+        <div id="list-screen" class="hidden fade-in">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 min-h-[80vh] flex flex-col">
+                <!-- Cabeçalho da Lista -->
+                <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
+                    <button id="back-btn" class="text-gray-500 hover:text-indigo-600 hover:bg-gray-100 p-2 rounded-full transition"><i class="fas fa-arrow-left"></i></button>
+                    <h1 id="list-title" class="text-xl font-bold flex-1 truncate text-gray-800"></h1>
+                    <button id="recipe-btn" class="text-amber-600 bg-amber-50 hover:bg-amber-100 p-2 rounded-lg transition" title="Buscar Ideias de Receitas"><i class="fas fa-utensils"></i></button>
+                </div>
+
+                <!-- Campo de Adicionar -->
+                <div class="bg-indigo-50 p-4 rounded-xl mb-6 relative border border-indigo-100">
+                    <label class="text-[10px] font-bold text-indigo-800 uppercase mb-2 block tracking-wider">Adicionar Itens (IA Local)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="new-list-name" placeholder="Ex: Compras da Semana" class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                        <button id="add-new-list-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-5 py-3 rounded-lg transition" aria-label="Adicionar nova lista">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                        <textarea id="item-input" rows="1" placeholder="Ex: Arroz, feijão e 1kg de carne..." class="w-full px-4 py-3 border-0 rounded-lg focus:ring-2 focus:ring-indigo-500 resize-none shadow-sm"></textarea>
+                        <button id="add-item-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 rounded-lg shadow-md transition"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
 
-                <div id="lists-of-lists-container" class="space-y-3"></div>
-                <div id="no-lists-message" class="text-center py-10 hidden">
-                    <i class="fas fa-folder-plus text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500 text-xl">Nenhuma lista encontrada.</p>
-                    <p class="text-gray-400">Crie sua primeira lista de compras acima!</p>
+                <!-- Lista de Itens -->
+                <div id="items-container" class="space-y-4 pb-24 flex-1">
+                    <!-- Itens aparecerão aqui -->
                 </div>
-            </div>
-        </div>
-
-        <!-- LIST SCREEN -->
-        <div id="list-screen" class="hidden">
-            <div class="bg-white rounded-2xl shadow-xl p-5 sm:p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <button id="back-to-home-btn" class="text-indigo-500 hover:text-indigo-700 text-lg flex items-center gap-2" aria-label="Voltar para a tela inicial"><i class="fas fa-arrow-left"></i> Voltar</button>
-                    <h1 id="current-list-name" class="text-2xl sm:text-3xl font-bold text-gray-900 text-right break-all"></h1>
+                <div id="empty-msg" class="text-center py-10 text-gray-300 hidden">
+                    <i class="fas fa-clipboard-list text-4xl mb-2"></i>
+                    <p>Sua lista está vazia.</p>
                 </div>
 
-                <div class="bg-gray-50 p-4 rounded-xl mb-6 border space-y-4">
-                    <label for="item-input" class="block text-gray-700 font-semibold">Adicionar Itens</label>
-                    <div class="flex items-center gap-2">
-                        <textarea id="item-input" placeholder="1kg de arroz e 1L de leite..." rows="3" class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"></textarea>
-                        <button id="photo-btn" class="p-4 bg-gray-200 hover:bg-gray-300 rounded-lg transition h-full flex items-center justify-center" aria-label="Adicionar por foto">
-                            <i class="fas fa-camera fa-2x text-gray-600"></i>
-                        </button>
-                        <input type="file" id="photo-input" accept="image/*" class="hidden">
+                <!-- Rodapé com Total -->
+                <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex justify-between items-center sm:static sm:border-0 sm:mt-4 shadow-lg sm:shadow-none z-10">
+                    <div>
+                        <span class="text-gray-500 text-xs uppercase font-bold">Total Estimado</span>
+                        <div id="total-price" class="text-xl font-bold text-indigo-600">R$ 0,00</div>
                     </div>
-                    <button id="add-item-btn" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-lg px-6 py-3 rounded-lg transition-transform transform hover:scale-105 flex items-center justify-center gap-2">
-                        <span id="add-btn-text">✨ Adicionar à Lista</span>
-                    </button>
-                </div>
-                
-                <div class="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-                    <button id="summary-btn" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-5 rounded-full transition shadow-sm hover:shadow-md hidden flex-1 flex items-center justify-center gap-2"><i class="fas fa-chart-pie"></i>Ver Resumo</button>
-                    <button id="recipe-btn" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-5 rounded-full transition shadow-sm hover:shadow-md hidden flex-1 flex items-center justify-center gap-2"><span id="recipe-btn-text">✨ Sugerir Receita</span></button>
-                </div>
-
-                <div id="items-container" class="space-y-6"></div>
-                
-                <div id="empty-list-message" class="text-center py-10 hidden">
-                    <i class="fas fa-clipboard-list text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500 text-xl">Sua lista está vazia.</p>
-                </div>
-
-                <!-- Total Container -->
-                <div id="total-container" class="mt-8 p-4 bg-indigo-50 rounded-xl text-center hidden">
-                    <p class="text-lg text-gray-600">Total no Carrinho</p>
-                    <p id="total-amount" class="text-4xl font-bold text-indigo-600">R$ 0,00</p>
-                </div>
-
-                <div id="list-actions" class="flex flex-col sm:flex-row justify-end gap-4 mt-8 hidden">
-                    <button id="clear-checked-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"><i class="fas fa-eraser"></i> Limpar Comprados</button>
-                    <button id="clear-all-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"><i class="fas fa-trash-alt"></i> Limpar Tudo</button>
+                    <button id="clear-checked" class="text-sm text-gray-400 hover:text-red-500 underline transition">Limpar comprados</button>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- MODAL & TOAST & TEMPLATES -->
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden modal-overlay">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 id="modal-title" class="text-2xl font-bold text-gray-900">Título</h2>
-                    <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 text-3xl leading-none" aria-label="Fechar modal">&times;</button>
-                </div>
-                <div id="modal-body" class="text-gray-700 space-y-4 text-base leading-relaxed max-h-[60vh] overflow-y-auto"></div>
-                <div id="modal-footer" class="mt-6 flex justify-end gap-3"></div>
-            </div>
-        </div>
+
+    <!-- TOAST (Notificações) -->
+    <div id="toast" class="toast fixed bottom-20 right-1/2 translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl z-50 flex items-center gap-3 whitespace-nowrap">
+        <i class="fas fa-check-circle text-green-400"></i><span id="toast-msg" class="font-medium"></span>
     </div>
 
-    <div id="toast" class="toast fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-2xl z-50 flex items-center gap-3" role="alert">
-        <i id="toast-icon" class="fas fa-check-circle text-green-400"></i>
-        <span id="toast-message"></span>
-    </div>
-
-    <template id="item-template">
-        <div class="item-wrapper flex items-center justify-between bg-white p-3 rounded-xl shadow-sm transition-all duration-300 border hover:shadow-md">
-            <div class="flex items-center gap-3 flex-grow min-w-0">
-                <input type="checkbox" class="item-checkbox w-6 h-6 text-indigo-500 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer flex-shrink-0">
-                <div class="item-name-container flex-grow cursor-pointer min-w-0">
-                    <span class="item-name-text text-lg text-gray-800 font-medium truncate"></span>
-                    <span class="item-price-text text-sm text-green-600 font-semibold ml-2"></span>
-                </div>
-            </div>
-            <div class="flex items-center flex-shrink-0">
-                <button class="edit-price-btn text-gray-400 hover:text-indigo-600 transition ml-2 p-2" aria-label="Adicionar/Editar preço">
-                    <i class="fas fa-dollar-sign fa-lg"></i>
-                </button>
-                <button class="delete-item-btn text-red-400 hover:text-red-600 transition ml-2 p-2" aria-label="Deletar item">
-                    <i class="fas fa-trash-alt fa-lg"></i>
-                </button>
-            </div>
-        </div>
-    </template>
-
+    <!-- JAVASCRIPT -->
     <script type="module">
-        // --- Firebase SDK Imports ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // --- PWA Setup ---
-        const manifestContent={
-            "name":"Minha Lista de Compras",
-            "short_name":"Minha Lista",
-            "start_url":".",
-            "display":"standalone",
-            "background_color":"#f0f2f5",
-            "theme_color":"#4f46e5",
-            "description":"Crie e gerencie suas listas de compras com IA.",
-            "icons":[
-                // PASSO 2: Substitua o conteúdo de 'src' abaixo
-                {"src": "web-app-manifest-192x192.png", "sizes":"192x192", "type":"image/png"},
-                // PASSO 3: Substitua o conteúdo de 'src' abaixo
-                {"src": "web-app-manifest-512x512.png", "sizes":"512x512", "type":"image/png"}
-            ]
+        // 1. Dicionário Turbinado
+        const categoryDB = {
+            'Hortifruti': ['banana', 'maca', 'maçã', 'uva', 'laranja', 'limao', 'limão', 'mamao', 'mamão', 'melancia', 'melao', 'melão', 'abacaxi', 'manga', 'morango', 'pera', 'abacate', 'maracuja', 'maracujá', 'kiwi', 'caqui', 'goiaba', 'pessego', 'pêssego', 'batata', 'cebola', 'tomate', 'cenoura', 'alface', 'alho', 'couve', 'pimentao', 'pimentão', 'abobrinha', 'berinjela', 'chuchu', 'pepino', 'beterraba', 'brocolis', 'brócolis', 'repolho', 'rucula', 'rúcula', 'salsinha', 'cebolinha', 'coentro', 'cheiro verde', 'mandioca', 'aipim', 'macaxeira', 'batata doce', 'inhame', 'quiabo', 'vagem', 'gengibre', 'hortela', 'hortelã', 'manjericao', 'manjericão', 'espinafre', 'milho verde'],
+            'Açougue': ['carne', 'bife', 'moida', 'moída', 'picanha', 'alcatra', 'contra file', 'filé', 'acem', 'acém', 'musculo', 'costela', 'figado', 'fígado', 'boi', 'frango', 'peito de frango', 'asa', 'coxa', 'sobrecoxa', 'coracao', 'coração', 'file de frango', 'porco', 'bisteca', 'linguica', 'linguiça', 'salsicha', 'bacon', 'presunto', 'calabresa', 'paio', 'mortadela', 'salame', 'lombo', 'pernil', 'peixe', 'file de peixe', 'camarao', 'camarão', 'sardinha', 'hamburguer', 'empanado', 'nuggets'],
+            'Laticínios': ['leite', 'queijo', 'mussarela', 'muçarela', 'prato', 'parmesao', 'parmesão', 'minas', 'ricota', 'catupiry', 'requeijao', 'requeijão', 'iogurte', 'danone', 'yakult', 'manteiga', 'margarina', 'nata', 'creme de leite', 'leite condensado', 'doce de leite', 'chantilly', 'leite fermentado', 'coalhada', 'ovo', 'ovos'],
+            'Mercearia': ['arroz', 'feijao', 'feijão', 'macarrao', 'macarrão', 'oleo', 'óleo', 'azeite', 'sal', 'acucar', 'açúcar', 'cafe', 'café', 'farinha', 'fuba', 'fubá', 'milho', 'ervilha', 'pao', 'pão', 'biscoito', 'bolacha', 'torrada', 'cereal', 'aveia', 'granola', 'mel', 'chocolate', 'achocolatado', 'nescau', 'toddy', 'bombom', 'barra de cereal', 'molho', 'extrato', 'pomarola', 'maionese', 'ketchup', 'mostarda', 'vinagre', 'shoyu', 'palmito', 'azeitona', 'cogumelo', 'champignon', 'seleta', 'miojo', 'lamen', 'sopa', 'pipoca', 'gelatina', 'pudim', 'leite de coco', 'creme de cebola', 'tempero', 'pimenta', 'oregano', 'orégano', 'caldo', 'sazon', 'racao', 'ração', 'petisco', 'areia de gato', 'sache', 'sachê'],
+            'Padaria': ['pao frances', 'pão francês', 'baguete', 'ciabatta', 'sonho', 'bolo', 'torta', 'pao de queijo', 'pão de queijo', 'salgado', 'coxinha', 'brioche', 'pao de forma'],
+            'Bebidas': ['agua', 'água', 'suco', 'refrigerante', 'coca', 'guarana', 'guaraná', 'pepsi', 'fanta', 'cerveja', 'vinho', 'vodka', 'wisky', 'whisky', 'gin', 'cachaca', 'cachaça', 'energetico', 'energético', 'cha', 'chá', 'mate', 'agua de coco', 'tonica', 'tônica'],
+            'Limpeza': ['sabao', 'sabão', 'detergente', 'ypê', 'minuano', 'amaciante', 'agua sanitaria', 'água sanitária', 'candida', 'cloro', 'desinfetante', 'veja', 'multiuso', 'alcool', 'álcool', 'esponja', 'bucha', 'bombril', 'lã de aço', 'palha de aço', 'saco de lixo', 'lixeira', 'pano', 'flanela', 'rodo', 'vassoura', 'pa', 'pá', 'sabao em po', 'sabão em pó', 'omo', 'tixan', 'vanish', 'tira manchas', 'lustra moveis'],
+            'Higiene': ['papel higienico', 'papel higiênico', 'sabonete', 'shampoo', 'xampu', 'condicionador', 'pasta de dente', 'creme dental', 'escova de dente', 'fio dental', 'enxaguante', 'desodorante', 'perfume', 'hidratante', 'creme', 'protetor solar', 'cotonete', 'algodao', 'algodão', 'absorvente', 'fralda', 'lenco', 'lenço', 'gilete', 'lâmina', 'barbear', 'talco', 'esmalte', 'acetona']
         };
-        const serviceWorkerCode = `
-            const CACHE_NAME = 'shopping-lists-cache-v17'; // <-- MUDE ESTE NÚMERO A CADA ATUALIZAÇÃO
-            const urlsToCache = [
-                '/',
-                'index.html',
-                'https://cdn.tailwindcss.com',
-                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'
-            ];
-            
-            // Evento de Instalação: Guarda os arquivos essenciais no cache
-            self.addEventListener('install', event => {
-                event.waitUntil(
-                    caches.open(CACHE_NAME)
-                        .then(cache => {
-                            console.log('Cache aberto:', CACHE_NAME);
-                            return cache.addAll(urlsToCache);
-                        })
-                );
-            });
-            
-            // Evento de Ativação: Limpa os caches antigos
-            self.addEventListener('activate', event => {
-                event.waitUntil(
-                    caches.keys().then(cacheNames => {
-                        return Promise.all(
-                            cacheNames.map(cacheName => {
-                                if (cacheName !== CACHE_NAME) {
-                                    console.log('Limpando cache antigo:', cacheName);
-                                    return caches.delete(cacheName);
-                                }
-                            })
-                        );
-                    })
-                );
-            });
-            
-            // Evento de Fetch: Responde com o cache primeiro, depois busca na rede
-            self.addEventListener('fetch', event => {
-                event.respondWith(
-                    caches.match(event.request)
-                        .then(response => {
-                            // Se encontrar no cache, retorna. Senão, busca na rede.
-                            return response || fetch(event.request);
-                        })
-                );
-            });
-            `;
-        const manifestBlob=new Blob([JSON.stringify(manifestContent)],{type:'application/json'});
-        const manifestURL=URL.createObjectURL(manifestBlob);
-        document.querySelector('link[rel="manifest"]').setAttribute('href',manifestURL);
-        if('serviceWorker'in navigator){
-            const swBlob=new Blob([serviceWorkerCode],{type:'application/javascript'});
-            const swURL=URL.createObjectURL(swBlob);
-            navigator.serviceWorker.register(swURL).catch(error=>{console.warn('SW registration failed:',error);});
+
+        const detectCategory = (itemName) => {
+            const lower = itemName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            for (const [cat, keywords] of Object.entries(categoryDB)) {
+                if (keywords.some(k => lower.includes(k))) return cat;
+            }
+            return 'Outros';
+        };
+
+        // 2. Configuração Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDoyIgr10VEBwpDjNZcdLEDP2yIREW6KKk", 
+            authDomain: "lista-de-compras-app-1446f.firebaseapp.com",
+            projectId: "lista-de-compras-app-1446f",
+            storageBucket: "lista-de-compras-app-1446f.appspot.com",
+            messagingSenderId: "417565877000",
+            appId: "1:417565877000:web:31f32aa29d9575b1bdc2bd"
+        };
+
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Erro Firebase:", e);
+            alert("Erro ao conectar no banco de dados.");
         }
+        
+        let userId = null;
+        let currentListId = null;
+        let unsubscribe = null;
+        let localLists = [];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- FIREBASE & APP STATE ---
-            let app = null;
-            let auth = null;
-            let db = null;
-            let userId = null;
-            let listsUnsubscribe = () => {};
-
-            let appData = { lists: [] };
-            let currentListId = null;
-            let appId = null; // Will be set from firebaseConfig
-            const categoryIcons = { 'Alimentação': 'fa-utensils', 'Laticínios': 'fa-cheese', 'Mercearia': 'fa-basket-shopping', 'Açougue': 'fa-drumstick-bite', 'Hortifruti': 'fa-carrot', 'Bebidas': 'fa-martini-glass-citrus', 'Padaria': 'fa-bread-slice', 'Limpeza': 'fa-soap', 'Higiene': 'fa-pump-soap', 'Outros': 'fa-box' };
-            
-            // --- UI ELEMENT SELECTORS ---
-            const appContainer = document.getElementById('app-container');
-            const loadingScreen = document.getElementById('loading-screen');
-            const authScreen = document.getElementById('auth-screen');
-            const loginForm = document.getElementById('login-form');
-            const registerForm = document.getElementById('register-form');
-            const loginEmailInput = document.getElementById('login-email');
-            const loginPasswordInput = document.getElementById('login-password');
-            const keepLoggedInCheckbox = document.getElementById('keep-logged-in');
-            const loginBtn = document.getElementById('login-btn');
-            const registerEmailInput = document.getElementById('register-email');
-            const registerPasswordInput = document.getElementById('register-password');
-            const registerBtn = document.getElementById('register-btn');
-            const showRegisterLink = document.getElementById('show-register-link');
-            const showLoginLink = document.getElementById('show-login-link');
-            const logoutBtn = document.getElementById('logout-btn');
-            
-            const homeScreen = document.getElementById('home-screen');
-            const listScreen = document.getElementById('list-screen');
-            const newListNameInput = document.getElementById('new-list-name');
-            const addNewListBtn = document.getElementById('add-new-list-btn');
-            const listsOfListsContainer = document.getElementById('lists-of-lists-container');
-            const noListsMessage = document.getElementById('no-lists-message');
-            const backToHomeBtn = document.getElementById('back-to-home-btn');
-            const currentListNameEl = document.getElementById('current-list-name');
-            const itemInput = document.getElementById('item-input');
-            const addItemBtn = document.getElementById('add-item-btn');
-            const photoBtn = document.getElementById('photo-btn');
-            const photoInput = document.getElementById('photo-input');
-            const itemsContainer = document.getElementById('items-container');
-            const emptyListMessage = document.getElementById('empty-list-message');
-            const listActions = document.getElementById('list-actions');
-            const clearCheckedBtn = document.getElementById('clear-checked-btn');
-            const clearAllBtn = document.getElementById('clear-all-btn');
-            const summaryBtn = document.getElementById('summary-btn');
-            const recipeBtn = document.getElementById('recipe-btn');
-            const modal = document.getElementById('modal');
-            const modalTitle = document.getElementById('modal-title');
-            const modalBody = document.getElementById('modal-body');
-            const modalFooter = document.getElementById('modal-footer');
-            const closeModalBtn = document.getElementById('close-modal-btn');
-            const toast = document.getElementById('toast');
-            const toastIcon = document.getElementById('toast-icon');
-            const toastMessage = document.getElementById('toast-message');
-            const itemTemplate = document.getElementById('item-template');
-            const totalContainer = document.getElementById('total-container');
-            const totalAmount = document.getElementById('total-amount');
-            
-            // --- FIREBASE INITIALIZATION AND AUTHENTICATION ---
-            const initializeFirebase = async () => {
-                const firebaseConfig = {
-                    apiKey: "AIzaSyDoyIgr10VEBwpDjNZcdLEDP2yIREW6KKk",
-                    authDomain: "lista-de-compras-app-1446f.firebaseapp.com",
-                    projectId: "lista-de-compras-app-1446f",
-                    storageBucket: "lista-de-compras-app-1446f.appspot.com",
-                    messagingSenderId: "417565877000",
-                    appId: "1:417565877000:web:31f32aa29d9575b1bdc2bd"
-                };
-
-                if (!firebaseConfig || !firebaseConfig.apiKey || firebaseConfig.apiKey === "SUA_API_KEY") {
-                    appContainer.innerHTML = `
-                        <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
-                            <i class="fas fa-cogs text-5xl text-red-500 mb-4"></i>
-                            <h1 class="text-3xl font-bold text-gray-900">Configuração Necessária</h1>
-                            <p class="text-gray-600 mt-4">Para que a aplicação funcione, precisa de a conectar à sua base de dados Firebase.</p>
-                            <p class="text-gray-600 mt-2">Por favor, edite o código, encontre a constante <strong>firebaseConfig</strong> e substitua os valores de exemplo pelos do seu projeto.</p>
-                            <a href="https://console.firebase.google.com/" target="_blank" class="mt-6 inline-block bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-6 py-3 rounded-lg">Ir para a Consola do Firebase</a>
-                        </div>`;
-                    return;
-                }
-                
-                try {
-                    app = initializeApp(firebaseConfig);
-                    auth = getAuth(app);
-                    db = getFirestore(app);
-                    appId = firebaseConfig.appId;
-                    setLogLevel('debug');
-
-                    onAuthStateChanged(auth, (user) => {
-                        if (user) {
-                            userId = user.uid;
-                            setupRealtimeListener(appId, userId);
-                            switchView('home');
-                        } else {
-                            userId = null;
-                            if(listsUnsubscribe) listsUnsubscribe();
-                            appData = { lists: [] };
-                            switchView('auth');
-                        }
-                    });
-                } catch (error) {
-                    console.error("Error initializing Firebase:", error);
-                    appContainer.innerHTML = `<p class="text-red-500 text-center">Erro ao iniciar a base de dados. Verifique a sua configuração.</p>`;
-                }
-            };
-
-            // --- AUTH LOGIC ---
-            const handleLogin = async () => {
-                const email = loginEmailInput.value.trim();
-                const password = loginPasswordInput.value.trim();
-                if (!email || !password) {
-                    showToast("Por favor, preencha o email e a palavra-passe.", 'error');
-                    return;
-                }
-                toggleButtonLoading(loginBtn, true, '<span>Entrar</span>');
-                try {
-                    const persistence = keepLoggedInCheckbox.checked 
-                        ? browserLocalPersistence 
-                        : browserSessionPersistence;
-                    await setPersistence(auth, persistence);
-                    await signInWithEmailAndPassword(auth, email, password);
-                } catch (error) {
-                    console.error("Login failed:", error.code);
-                    showToast(getAuthErrorMessage(error.code), 'error');
-                } finally {
-                    toggleButtonLoading(loginBtn, false, '<span>Entrar</span>');
-                }
-            };
-            
-            const handleRegister = async () => {
-                const email = registerEmailInput.value.trim();
-                const password = registerPasswordInput.value.trim();
-                 if (!email || !password) {
-                    showToast("Por favor, preencha o email e a palavra-passe.", 'error');
-                    return;
-                }
-                toggleButtonLoading(registerBtn, true, '<span>Registar</span>');
-                try {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                } catch (error) {
-                     console.error("Registration failed:", error.code);
-                     showToast(getAuthErrorMessage(error.code), 'error');
-                } finally {
-                    toggleButtonLoading(registerBtn, false, '<span>Registar</span>');
-                }
-            };
-            
-            const handleLogout = async () => {
-                try {
-                    await signOut(auth);
-                } catch (error) {
-                    console.error("Logout failed:", error);
-                    showToast("Erro ao terminar a sessão.", 'error');
-                }
-            };
-            
-            const getAuthErrorMessage = (code) => {
-                switch (code) {
-                    case 'auth/invalid-email':
-                        return 'O formato do email é inválido.';
-                    case 'auth/user-not-found':
-                    case 'auth/wrong-password':
-                    case 'auth/invalid-credential':
-                        return 'Email ou palavra-passe incorretos.';
-                    case 'auth/email-already-in-use':
-                        return 'Este email já está a ser utilizado.';
-                    case 'auth/weak-password':
-                        return 'A palavra-passe deve ter pelo menos 6 caracteres.';
-                    case 'auth/operation-not-allowed':
-                         return 'Login por Email/Palavra-passe não está ativo. Ative na consola do Firebase.';
-                    default:
-                        return 'Ocorreu um erro. Tente novamente.';
-                }
-            };
-
-            // --- FIRESTORE REAL-TIME DATA HANDLING ---
-            const setupRealtimeListener = (currentAppId, uid) => {
-                if (listsUnsubscribe) listsUnsubscribe();
-                const listsCollectionRef = collection(db, "artifacts", currentAppId, "users", uid, "lists");
-                
-                listsUnsubscribe = onSnapshot(listsCollectionRef, (snapshot) => {
-                    const lists = [];
-                    snapshot.forEach(doc => {
-                        lists.push({ id: doc.id, ...doc.data() });
-                    });
-                    appData.lists = lists;
-                    
-                    if(currentListId) {
-                       if (appData.lists.find(l => l.id === currentListId)) {
-                           renderListScreen();
-                       } else {
-                           switchView('home');
-                       }
-                    } else {
-                        renderHomeScreen();
-                    }
-                }, (error) => {
-                    console.error("Error with Firestore listener: ", error.code, error.message);
-                    if (error.code === 'permission-denied') {
-                        const projectId = app.options.projectId;
-                        appContainer.innerHTML = `
-                        <div class="bg-white rounded-2xl shadow-xl p-8 text-center fade-in">
-                            <i class="fas fa-shield-alt text-5xl text-red-500 mb-4"></i>
-                            <h1 class="text-3xl font-bold text-gray-900">Acesso Negado à Base de Dados</h1>
-                            <p class="text-gray-600 mt-4">A aplicação não conseguiu aceder às suas listas. Isto acontece porque as <strong>Regras de Segurança</strong> do seu projeto Firebase precisam de ser atualizadas.</p>
-                            <p class="text-gray-600 mt-2">Por favor, vá à Consola do Firebase, navegue até às regras do <strong>Firestore Database</strong> e substitua o conteúdo pelas seguintes regras:</p>
-                            <div class="my-4 bg-gray-800 text-white p-4 rounded-lg text-left font-mono text-sm overflow-x-auto">
-                                <pre><code>rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /artifacts/{appId}/users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}</code></pre>
-                            </div>
-                            <a href="https://console.firebase.google.com/project/${projectId}/firestore/rules" target="_blank" class="mt-4 inline-block bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-6 py-3 rounded-lg transition-transform transform hover:scale-105">
-                                <i class="fas fa-external-link-alt mr-2"></i>Abrir Editor de Regras
-                            </a>
-                            <p class="text-xs text-gray-500 mt-4">Depois de guardar as novas regras, por favor, atualize esta página.</p>
-                        </div>`;
-                    } else {
-                        showToast("Erro ao sincronizar os seus dados.", 'error');
-                        appContainer.innerHTML = `<p class="text-red-500 text-center">Ocorreu um erro inesperado ao carregar os dados. Verifique a consola para mais detalhes.</p>`;
-                    }
-                });
-            };
-
-            const getCurrentList = () => appData.lists.find(list => list.id === currentListId);
-            
-            // --- NAVIGATION ---
-            const switchView = (view) => {
-                loadingScreen.classList.add('hidden');
-                authScreen.classList.add('hidden');
-                homeScreen.classList.add('hidden');
-                listScreen.classList.add('hidden');
-                
-                if (view === 'auth') {
-                    authScreen.classList.remove('hidden');
-                    loginForm.classList.remove('hidden');
-                    registerForm.classList.add('hidden');
-                } else if (view === 'home') {
-                    homeScreen.classList.remove('hidden');
-                    currentListId = null;
-                    renderHomeScreen();
-                } else if (view === 'list') {
-                    listScreen.classList.remove('hidden');
-                    renderListScreen();
-                }
-            };
-
-            // --- RENDERING ---
-            const renderHomeScreen = () => {
-                listsOfListsContainer.innerHTML = '';
-                noListsMessage.classList.toggle('hidden', appData.lists.length > 0);
-                const sortedLists = [...appData.lists].sort((a, b) => a.name.localeCompare(b.name));
-
-                sortedLists.forEach(list => {
-                    const totalItems = list.items?.length || 0;
-                    const checkedItems = list.items?.filter(i => i.checked).length || 0;
-                    const progress = totalItems > 0 ? (checkedItems / totalItems) * 100 : 0;
-                    const listEl = document.createElement('div');
-                    listEl.className = 'list-card bg-white p-5 rounded-2xl shadow-lg hover:shadow-indigo-100 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between h-40 fade-in';
-                    listEl.dataset.listId = list.id;
-                    listEl.innerHTML = `
-                        <div>
-                            <div class="flex justify-between items-start">
-                                <span class="font-bold text-xl text-gray-800 break-all">${list.name}</span>
-                                <button data-list-id="${list.id}" class="delete-list-btn text-gray-400 hover:text-red-600 transition-colors p-1 -mt-1 -mr-1 z-10 relative" aria-label="Apagar lista ${list.name}"><i class="fas fa-times-circle fa-lg"></i></button>
-                            </div>
-                            <p class="text-sm text-gray-500 mt-2">${totalItems > 0 ? `${checkedItems} de ${totalItems} itens` : 'Lista vazia'}</p>
-                        </div>
-                        <div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-3">
-                                <div class="bg-gradient-to-r from-green-400 to-teal-500 h-2.5 rounded-full" style="width: ${progress}%"></div>
-                            </div>
-                        </div>`;
-                    listsOfListsContainer.appendChild(listEl);
-                });
-            };
-            
-            const renderListScreen = () => {
-                const list = getCurrentList();
-                if (!list) {
-                    if (currentListId) {
-                         showToast("A lista não foi encontrada. Retornando ao início.", 'error');
-                    }
-                    switchView('home');
-                    return;
-                }
-                currentListNameEl.textContent = list.name;
-                renderItems();
-            };
-
-            const renderItems = () => {
-                const list = getCurrentList();
-                if (!list || !list.items) return;
-
-                itemsContainer.innerHTML = '';
-                const activeItems = list.items.filter(i => !i.checked);
-                const checkedItems = list.items.filter(i => i.checked);
-
-                const groupedItems = activeItems.reduce((acc, item) => {
-                    const category = item.category || 'Outros';
-                    (acc[category] = acc[category] || []).push(item);
-                    return acc;
-                }, {});
-
-                Object.keys(groupedItems).sort().forEach(category => {
-                    const categoryWrapper = document.createElement('div');
-                    categoryWrapper.innerHTML = `<h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-3"><i class="fas ${categoryIcons[category] || 'fa-box'} text-indigo-500"></i> ${category}</h2>`;
-                    const itemsDiv = document.createElement('div');
-                    itemsDiv.className = 'space-y-3';
-                    groupedItems[category].sort((a, b) => a.name.localeCompare(b.name)).forEach(item => itemsDiv.appendChild(createItemElement(item)));
-                    categoryWrapper.appendChild(itemsDiv);
-                    itemsContainer.appendChild(categoryWrapper);
-                });
-
-                if (checkedItems.length > 0) {
-                    const checkedSection = document.createElement('div');
-                    checkedSection.innerHTML = `<div class="flex items-center gap-3 my-4"><hr class="flex-grow border-t"><h2 class="text-lg font-semibold text-gray-600">Comprados</h2><hr class="flex-grow border-t"></div>`;
-                    const checkedContainer = document.createElement('div');
-                    checkedContainer.className = 'space-y-3';
-                    checkedItems.sort((a, b) => a.name.localeCompare(b.name)).forEach(item => checkedContainer.appendChild(createItemElement(item)));
-                    checkedSection.appendChild(checkedContainer);
-                    itemsContainer.appendChild(checkedSection);
-                }
-
-                const hasItems = list.items.length > 0;
-                emptyListMessage.classList.toggle('hidden', hasItems);
-                listActions.classList.toggle('hidden', !hasItems);
-                summaryBtn.classList.toggle('hidden', !hasItems);
-                recipeBtn.classList.toggle('hidden', activeItems.length === 0);
-
-                calculateAndDisplayTotal();
-            };
-
-            const createItemElement = (item) => {
-                const itemElement = itemTemplate.content.cloneNode(true).firstElementChild;
-                itemElement.dataset.itemId = item.id;
-                const nameSpan = itemElement.querySelector('.item-name-text');
-                const priceSpan = itemElement.querySelector('.item-price-text');
-                const checkbox = itemElement.querySelector('.item-checkbox');
-                const editPriceBtn = itemElement.querySelector('.edit-price-btn');
-                const deleteBtn = itemElement.querySelector('.delete-item-btn');
-
-                nameSpan.textContent = item.name + (item.quantity ? ` - ${item.quantity}` : '');
-
-                if (typeof item.price === 'number') {
-                    priceSpan.textContent = formatCurrency(item.price);
-                } else {
-                    priceSpan.textContent = '';
-                }
-
-                checkbox.checked = item.checked;
-                itemElement.classList.toggle('opacity-60', item.checked);
-                itemElement.classList.toggle('bg-green-50', item.checked);
-                nameSpan.classList.toggle('line-through', item.checked);
-                nameSpan.classList.toggle('text-gray-500', item.checked);
-                
-                checkbox.addEventListener('change', () => toggleChecked(item.id));
-                editPriceBtn.addEventListener('click', () => showPriceModal(item.id));
-                deleteBtn.addEventListener('click', () => deleteItem(item.id));
-                deleteBtn.setAttribute('aria-label', `Deletar item ${item.name}`);
-                
-                return itemElement;
-            };
-
-            // --- CRUD OPERATIONS (FIRESTORE) ---
-            const createNewList = async () => {
-                const name = newListNameInput.value.trim();
-                if (name && userId && appId) {
-                    try {
-                        const listsCollectionRef = collection(db, "artifacts", appId, "users", userId, "lists");
-                        await addDoc(listsCollectionRef, { name: name, items: [] });
-                        newListNameInput.value = '';
-                        showToast("Lista criada com sucesso!", "success");
-                    } catch (error) {
-                        console.error("Error creating new list: ", error);
-                        showToast("Não foi possível criar a lista.", 'error');
-                    }
-                }
-            };
-            
-            const deleteList = async (listIdToDelete) => {
-                 showConfirmModal("Apagar Lista?", `Tem certeza que deseja apagar esta lista? Esta ação não pode ser desfeita.`, async () => {
-                    try {
-                        const docRef = doc(db, "artifacts", appId, "users", userId, "lists", listIdToDelete);
-                        await deleteDoc(docRef);
-                        showToast("Lista apagada.", "success");
-                        hideModal();
-                    } catch (error) {
-                        console.error("Error deleting list: ", error);
-                        showToast("Não foi possível apagar a lista.", 'error');
-                        hideModal();
-                    }
-                });
-            };
-
-            const updateCurrentListItems = async (newItems) => {
-                if (!userId || !currentListId || !appId) return;
-                const docRef = doc(db, "artifacts", appId, "users", userId, "lists", currentListId);
-                try {
-                    await updateDoc(docRef, { items: newItems });
-                } catch (error) {
-                    console.error("Error updating list items:", error);
-                    showToast("Erro ao salvar alterações.", "error");
-                }
-            };
-            
-            const processAndAddItems = (parsedItems) => {
-                const list = getCurrentList();
-                if (!Array.isArray(parsedItems) || parsedItems.length === 0 || !list) return;
-
-                const newItems = parsedItems.map(itemData => ({
-                    id: Date.now() + Math.random(),
-                    name: itemData.name,
-                    quantity: itemData.quantity || '',
-                    category: itemData.category || 'Outros',
-                    checked: false,
-                    price: null
-                }));
-
-                const updatedItems = [...newItems, ...(list.items || [])];
-                updateCurrentListItems(updatedItems);
-                showToast(parsedItems.length > 1 ? `${parsedItems.length} itens adicionados!` : `'${parsedItems[0].name}' adicionado!`);
-            };
-
-            const toggleChecked = (itemId) => {
-                const list = getCurrentList();
-                const updatedItems = list.items.map(item => 
-                    item.id === itemId ? { ...item, checked: !item.checked } : item
-                );
-                updateCurrentListItems(updatedItems);
-            };
-
-            const deleteItem = (itemId) => {
-                const list = getCurrentList();
-                const updatedItems = list.items.filter(i => i.id !== itemId);
-                updateCurrentListItems(updatedItems);
-            };
-            
-            const clearCheckedItems = () => {
-                const list = getCurrentList();
-                const updatedItems = list.items.filter(i => !i.checked);
-                updateCurrentListItems(updatedItems);
-            };
-
-            const clearAllItems = () => {
-                showConfirmModal("Limpar Itens?", "Tem certeza que deseja apagar TODOS os itens desta lista?", () => {
-                    updateCurrentListItems([]);
-                    hideModal();
-                });
-            };
-
-            // --- GEMINI AI FUNCTIONALITY ---
-            const callGemini = async (payload) => {
-                // IMPORTANT: Replace "" with your actual Google AI Studio API Key
-                const apiKey = "AIzaSyCS2hTaFPMGWth9L_a7mDDlFJg5gb2ndxk"; 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-                
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                    referrerPolicy: 'strict-origin-when-cross-origin' // Ensures the Referer header is sent for restricted keys
-                });
-                
-                if (!response.ok) {
-                    const errorBody = await response.text();
-                    throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody}`);
-                }
-                
-                const result = await response.json();
-                 if (result.candidates && result.candidates.length > 0) {
-                    return result.candidates[0].content.parts[0].text;
-                } else {
-                    throw new Error("Resposta da API inválida ou vazia.");
-                }
-            };
-            
-            const handleTextAddItem = async () => {
-                const text = itemInput.value.trim();
-                if (text === '') return;
-                
-                toggleButtonLoading(addItemBtn, true, '✨ Adicionar à Lista');
-                try {
-                    const prompt = `Analise o texto a seguir e extraia os itens de compra. O texto é: "${text}". Responda em português do Brasil. Categorize os itens realisticamente.`;
-                    const payload = {
-                        contents: [{ role: "user", parts: [{ text: prompt }] }],
-                        generationConfig: {
-                            responseMimeType: "application/json",
-                            responseSchema: {
-                                type: "ARRAY",
-                                items: {
-                                    type: "OBJECT",
-                                    properties: {
-                                        name: { type: "STRING" },
-                                        quantity: { type: "STRING" },
-                                        category: { type: "STRING", enum: Object.keys(categoryIcons) }
-                                    },
-                                    required: ["name"]
-                                }
-                            }
-                        }
-                    };
-                    const resultText = await callGemini(payload);
-                    processAndAddItems(JSON.parse(resultText));
-                    itemInput.value = '';
-                } catch (error) {
-                    console.error("Erro na IA:", error);
-                    showToast("A IA falhou. Item adicionado manualmente.", 'error');
-                    processAndAddItems([{ name: text }]);
-                } finally {
-                    toggleButtonLoading(addItemBtn, false, '✨ Adicionar à Lista');
-                }
-            };
-
-            const handlePhotoAddItem = async (file) => {
-                if (!file) return;
-
-                showModal("Analisando sua foto...", '<div class="text-center p-4"><p>Aguarde enquanto a IA lê sua lista...</p><div class="spinner inline-block mt-4 w-10 h-10" style="border-top-color: #4f46e5;"></div></div>');
-                try {
-                    const base64ImageData = await toBase64(file);
-                    const prompt = "Analise esta imagem de uma lista de compras e extraia todos os itens. Responda em português do Brasil.";
-                    const payload = {
-                        contents: [{
-                            role: "user",
-                            parts: [
-                                { text: prompt },
-                                { inlineData: { mimeType: file.type, data: base64ImageData } }
-                            ]
-                        }],
-                        generationConfig: {
-                            responseMimeType: "application/json",
-                            responseSchema: {
-                                type: "ARRAY",
-                                items: { type: "OBJECT", properties: { name: { type: "STRING" }, quantity: { type: "STRING" }, category: { type: "STRING", enum: Object.keys(categoryIcons) } }, required: ["name"] }
-                            }
-                        }
-                    };
-                    const resultText = await callGemini(payload);
-                    processAndAddItems(JSON.parse(resultText));
-                    hideModal();
-                } catch (error) {
-                    console.error("Erro na IA de Visão:", error);
-                    showModal("Erro", "<p>Não foi possível ler a lista da sua foto. Verifique sua conexão ou tente uma foto mais nítida.</p>");
-                } finally {
-                    photoInput.value = '';
-                }
-            };
-            
-            const handleRecipeSuggestion = async () => {
-                const list = getCurrentList();
-                if(!list || !list.items) return;
-                const ingredients = list.items.filter(i => !i.checked).map(i => i.name).join(', ');
-                if (!ingredients) return;
-
-                toggleButtonLoading(recipeBtn, true, '✨ Sugerir Receita');
-                showModal('✨ Sugestão de Receita', '<div class="text-center p-4"><p>Buscando uma receita deliciosa...</p><div class="spinner inline-block mt-4 w-10 h-10" style="border-top-color: #4f46e5;"></div></div>');
-                try {
-                    const prompt = `Sugira uma receita simples que use principalmente os seguintes ingredientes: ${ingredients}. Formate a resposta em HTML para ser exibida em uma página, usando tags como <h3> para títulos, <ul> e <li> para listas de ingredientes, e <p> para o modo de preparo. Use um tom amigável. Responda em português do Brasil.`;
-                    const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                    const resultHtml = await callGemini(payload);
-                    modalBody.innerHTML = resultHtml;
-                } catch (error) {
-                    console.error("Erro na IA de Receita:", error);
-                    modalBody.innerHTML = "<p>Desculpe, não foi possível buscar uma receita no momento. Tente novamente mais tarde.</p>";
-                } finally {
-                    toggleButtonLoading(recipeBtn, false, '✨ Sugerir Receita');
-                }
-            };
-            
-            // --- UI HELPER FUNCTIONS ---
-            const formatCurrency = (value) => {
-                if (typeof value !== 'number') {
-                    value = 0;
-                }
-                return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-            };
-
-            const calculateAndDisplayTotal = () => {
-                const list = getCurrentList();
-                if (!list || !list.items) {
-                    totalContainer.classList.add('hidden');
-                    return;
-                }
-
-                const total = list.items
-                    .filter(item => item.checked && typeof item.price === 'number')
-                    .reduce((sum, item) => sum + item.price, 0);
-
-                if (total > 0) {
-                    totalAmount.textContent = formatCurrency(total);
-                    totalContainer.classList.remove('hidden');
-                } else {
-                    totalContainer.classList.add('hidden');
-                }
-            };
-
-            const showPriceModal = (itemId) => {
-                const list = getCurrentList();
-                const item = list.items.find(i => i.id === itemId);
-                if (!item) return;
-
-                const bodyHtml = `
-                    <p class="mb-2">Digite o preço para <strong>${item.name}</strong>:</p>
-                    <input type="number" id="price-input" step="0.01" min="0" placeholder="Ex: 12.50" class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" value="${item.price || ''}">
-                `;
-
-                const saveBtn = document.createElement('button');
-                saveBtn.className = 'bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg';
-                saveBtn.textContent = 'Salvar Preço';
-                saveBtn.onclick = () => {
-                    const priceInput = document.getElementById('price-input');
-                    const newPrice = parseFloat(priceInput.value);
-
-                    const updatedItems = list.items.map(i =>
-                        i.id === itemId ? { ...i, price: (!isNaN(newPrice) && newPrice >= 0) ? newPrice : null } : i
-                    );
-                    updateCurrentListItems(updatedItems);
-                    hideModal();
-                };
-
-                const cancelBtn = document.createElement('button');
-                cancelBtn.className = 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg';
-                cancelBtn.textContent = 'Cancelar';
-                cancelBtn.onclick = hideModal;
-
-                showModal(`Definir Preço`, bodyHtml, [cancelBtn, saveBtn]);
-                document.getElementById('price-input').focus();
-            };
-
-            const toBase64 = file => new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = error => reject(error);
-            });
-            const toggleButtonLoading = (button, isLoading, defaultHtml = '') => {
-                const textSpan = button.querySelector('span');
-                button.disabled = isLoading;
-                if (isLoading) {
-                    if (textSpan) textSpan.innerHTML = `<span class="spinner w-5 h-5 mr-2"></span> Processando...`;
-                } else {
-                    if (textSpan) textSpan.innerHTML = defaultHtml;
-                }
-            };
-            const showToast = (message, type = 'success') => {
-                toastMessage.textContent = message;
-                toastIcon.className = type === 'success' ? 'fas fa-check-circle text-green-400' : 'fas fa-times-circle text-red-400';
-                toast.classList.toggle('bg-red-600', type === 'error');
-                toast.classList.toggle('bg-gray-900', type !== 'error');
-                toast.classList.add('show');
-                setTimeout(() => { toast.classList.remove('show'); }, 3500);
-            };
-            const hideModal = () => modal.classList.add('hidden');
-            const showModal = (title, body, footerButtons = []) => {
-                modalTitle.textContent = title;
-                modalBody.innerHTML = body;
-                modalFooter.innerHTML = '';
-                footerButtons.forEach(btn => modalFooter.appendChild(btn));
-                modal.classList.remove('hidden');
-            };
-            const showConfirmModal = (title, message, onConfirm) => {
-                const confirmBtn = document.createElement('button');
-                confirmBtn.className = 'bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg';
-                confirmBtn.textContent = 'Confirmar';
-                confirmBtn.onclick = onConfirm;
-                const cancelBtn = document.createElement('button');
-                cancelBtn.className = 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg';
-                cancelBtn.textContent = 'Cancelar';
-                cancelBtn.onclick = hideModal;
-                showModal(title, `<p>${message}</p>`, [cancelBtn, confirmBtn]);
-            };
-            const showListSummary = () => {
-                const list = getCurrentList();
-                const total = list.items.length;
-                const checked = list.items.filter(i => i.checked).length;
-                const unchecked = total - checked;
-                const categoryCounts = list.items.reduce((acc, item) => {
-                    const category = item.category || 'Outros';
-                    acc[category] = (acc[category] || 0) + 1;
-                    return acc;
-                }, {});
-                let summaryHtml = `<div class="space-y-4"><div class="flex justify-around text-center"><div><p class="text-3xl font-bold text-indigo-600">${total}</p><p class="text-sm text-gray-600">Total</p></div><div><p class="text-3xl font-bold text-green-600">${checked}</p><p class="text-sm text-gray-600">Comprados</p></div><div><p class="text-3xl font-bold text-amber-600">${unchecked}</p><p class="text-sm text-gray-600">Pendentes</p></div></div><hr><div><h3 class="font-bold text-lg mb-2 text-gray-700">Itens por Categoria:</h3><ul class="space-y-1">${Object.entries(categoryCounts).map(([cat, count]) => `<li class="flex justify-between items-center text-gray-600"><span class="flex items-center gap-2"><i class="fas ${categoryIcons[cat] || 'fa-box'} fa-fw text-gray-500"></i> ${cat}</span><span class="font-semibold">${count}</span></li>`).join('')}</ul></div></div>`;
-                showModal("Resumo da Lista", summaryHtml);
-            };
-            const showPhotoChoice = () => {
-                const takePhotoBtn = document.createElement('button');
-                takePhotoBtn.className = 'w-full text-left p-4 hover:bg-gray-100 rounded-lg flex items-center gap-3';
-                takePhotoBtn.innerHTML = '<i class="fas fa-camera fa-fw"></i> Tirar Foto';
-                takePhotoBtn.onclick = () => { photoInput.setAttribute('capture', 'environment'); photoInput.click(); hideModal(); };
-                const chooseFileBtn = document.createElement('button');
-                chooseFileBtn.className = 'w-full text-left p-4 hover:bg-gray-100 rounded-lg flex items-center gap-3';
-                chooseFileBtn.innerHTML = '<i class="fas fa-image fa-fw"></i> Escolher da Galeria';
-                chooseFileBtn.onclick = () => { photoInput.removeAttribute('capture'); photoInput.click(); hideModal(); };
-                showModal('Adicionar da Foto', '');
-                 modalBody.appendChild(takePhotoBtn);
-                 modalBody.appendChild(chooseFileBtn);
-            };
-
-            // --- EVENT LISTENERS ---
-            const initEventListeners = () => {
-                // Auth
-                showRegisterLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    loginForm.classList.add('hidden');
-                    registerForm.classList.remove('hidden');
-                });
-                showLoginLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    registerForm.classList.add('hidden');
-                    loginForm.classList.remove('hidden');
-                });
-                loginBtn.addEventListener('click', handleLogin);
-                registerBtn.addEventListener('click', handleRegister);
-                logoutBtn.addEventListener('click', handleLogout);
-
-                // Home Screen
-                addNewListBtn.addEventListener('click', createNewList);
-                newListNameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') createNewList(); });
-                listsOfListsContainer.addEventListener('click', (e) => {
-                    const deleteBtn = e.target.closest('.delete-list-btn');
-                    if (deleteBtn) {
-                        e.stopPropagation();
-                        deleteList(deleteBtn.dataset.listId);
-                        return;
-                    }
-                    const card = e.target.closest('.list-card');
-                    if (card) {
-                        currentListId = card.dataset.listId;
-                        switchView('list');
-                    }
-                });
-
-                // List Screen
-                backToHomeBtn.addEventListener('click', () => switchView('home'));
-                addItemBtn.addEventListener('click', handleTextAddItem);
-                itemInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleTextAddItem(); } });
-                clearCheckedBtn.addEventListener('click', clearCheckedItems);
-                clearAllBtn.addEventListener('click', clearAllItems);
-                photoBtn.addEventListener('click', showPhotoChoice);
-                photoInput.addEventListener('change', (e) => { if (e.target.files[0]) handlePhotoAddItem(e.target.files[0]); });
-                summaryBtn.addEventListener('click', showListSummary);
-                recipeBtn.addEventListener('click', handleRecipeSuggestion);
-                
-                // Modal
-                closeModalBtn.addEventListener('click', hideModal);
-                modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
-            };
-
-            // --- APP INITIALIZATION ---
-            initEventListeners();
-            initializeFirebase();
+        // 3. Inicialização e Autenticação
+        onAuthStateChanged(auth, user => {
+            userId = user ? user.uid : null;
+            if(user) {
+                switchView('home');
+                setupListener();
+            } else {
+                switchView('auth');
+            }
+            document.getElementById('loading-screen').classList.add('hidden');
         });
+
+        const setupListener = () => {
+            if(unsubscribe) unsubscribe();
+            unsubscribe = onSnapshot(collection(db, "artifacts", firebaseConfig.appId, "users", userId, "lists"), snap => {
+                localLists = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                if(currentListId) renderListItems(); else renderLists();
+            }, (error) => {
+                console.error("Erro listener:", error);
+            });
+        };
+
+        // 4. Navegação
+        const switchView = (screen) => {
+            ['auth', 'home', 'list'].forEach(s => document.getElementById(s+'-screen').classList.add('hidden'));
+            document.getElementById(screen+'-screen').classList.remove('hidden');
+            if(screen === 'home') { currentListId = null; renderLists(); }
+        };
+
+        const showToast = (msg) => {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        };
+
+        // 5. Renderização
+        const renderLists = () => {
+            const container = document.getElementById('lists-container');
+            container.innerHTML = '';
+            document.getElementById('no-lists-msg').classList.toggle('hidden', localLists.length > 0);
+
+            localLists.forEach(l => {
+                const total = l.items?.length || 0;
+                const done = l.items?.filter(i => i.checked).length || 0;
+                const div = document.createElement('div');
+                div.className = 'bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-indigo-400 cursor-pointer transition relative group';
+                div.dataset.listId = l.id;
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-gray-800 text-lg">${l.name}</h3>
+                        <button class="delete-list-btn text-gray-300 hover:text-red-500 p-2 z-10"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="mt-3 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-indigo-500 transition-all duration-500" style="width: ${total ? (done/total)*100 : 0}%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2 font-medium">${done}/${total} comprados</p>
+                `;
+                container.appendChild(div);
+            });
+        };
+
+        const renderListItems = () => {
+            const list = localLists.find(l => l.id === currentListId);
+            if(!list) return switchView('home');
+
+            document.getElementById('list-title').textContent = list.name;
+            const container = document.getElementById('items-container');
+            container.innerHTML = '';
+            
+            const items = list.items || [];
+            document.getElementById('empty-msg').classList.toggle('hidden', items.length > 0);
+
+            const total = items.reduce((acc, i) => i.checked && i.price ? acc + i.price : acc, 0);
+            document.getElementById('total-price').textContent = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'}).format(total);
+
+            const groups = items.reduce((acc, item) => {
+                const cat = item.category || 'Outros';
+                if(!acc[cat]) acc[cat] = [];
+                acc[cat].push(item);
+                return acc;
+            }, {});
+
+            Object.keys(groups).sort((a,b) => (a==='Outros'?1:(b==='Outros'?-1:a.localeCompare(b)))).forEach(cat => {
+                const div = document.createElement('div');
+                div.innerHTML = `<h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4 pl-1 flex items-center gap-2"><i class="fas fa-tag"></i> ${cat}</h3>`;
+                const ul = document.createElement('div');
+                ul.className = 'space-y-2';
+                
+                groups[cat].sort((a,b) => (a.checked === b.checked) ? a.name.localeCompare(b.name) : a.checked - b.checked).forEach(item => {
+                    const el = document.createElement('div');
+                    el.dataset.itemId = item.id;
+                    el.className = `item-row flex items-center justify-between p-3 rounded-lg border transition-all ${item.checked ? 'bg-gray-100 border-transparent opacity-60' : 'bg-white border-gray-100 shadow-sm'}`;
+                    
+                    el.innerHTML = `
+                        <div class="flex items-center gap-3 flex-1 cursor-pointer action-check select-none">
+                            <div class="w-6 h-6 border-2 rounded-md flex items-center justify-center pointer-events-none transition-colors ${item.checked ? 'bg-indigo-500 border-indigo-500' : 'border-gray-300'}">
+                                ${item.checked ? '<i class="fas fa-check text-white text-xs"></i>' : ''}
+                            </div>
+                            <div class="flex flex-col pointer-events-none min-w-0">
+                                <span class="truncate ${item.checked ? 'line-through text-gray-400' : 'text-gray-800 font-medium'}">${item.name}</span>
+                                <span class="text-xs text-green-600 font-bold h-4">${item.price ? 'R$ '+item.price.toFixed(2) : ''}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button class="action-price p-2 text-gray-400 hover:text-green-600 transition bg-transparent hover:bg-green-50 rounded-lg"><i class="fas fa-dollar-sign pointer-events-none"></i></button>
+                            <button class="action-delete p-2 text-gray-400 hover:text-red-500 transition bg-transparent hover:bg-red-50 rounded-lg"><i class="fas fa-trash pointer-events-none"></i></button>
+                        </div>
+                    `;
+                    ul.appendChild(el);
+                });
+                div.appendChild(ul);
+                container.appendChild(div);
+            });
+        };
+
+        // 6. Manipuladores de Eventos (DELEGAÇÃO CORRIGIDA)
+        
+        // Tela Home: Clicar na lista ou apagar lista
+        document.getElementById('lists-container').addEventListener('click', async (e) => {
+            const deleteBtn = e.target.closest('.delete-list-btn');
+            if (deleteBtn) {
+                e.stopPropagation();
+                const listEl = deleteBtn.closest('[data-list-id]');
+                if (listEl && confirm('Tem certeza que deseja apagar esta lista?')) {
+                    await deleteDoc(doc(db, "artifacts", firebaseConfig.appId, "users", userId, "lists", listEl.dataset.listId));
+                }
+                return;
+            }
+
+            const listCard = e.target.closest('[data-list-id]');
+            if (listCard) {
+                currentListId = listCard.dataset.listId;
+                renderListItems();
+                switchView('list');
+            }
+        });
+
+        // Tela Lista: Clicar nos itens, preço, deletar
+        document.getElementById('items-container').addEventListener('click', async (e) => {
+            const itemRow = e.target.closest('.item-row');
+            if (!itemRow) return;
+
+            const itemId = itemRow.dataset.itemId;
+            const list = localLists.find(l => l.id === currentListId);
+            if (!list) return;
+
+            // Deletar Item
+            if (e.target.closest('.action-delete')) {
+                if(confirm('Remover item?')) {
+                    const updated = list.items.filter(i => i.id != itemId);
+                    await updateDoc(doc(db, "artifacts", firebaseConfig.appId, "users", userId, "lists", currentListId), { items: updated });
+                }
+                return;
+            }
+
+            // Preço Item
+            if (e.target.closest('.action-price')) {
+                const currentItem = list.items.find(i => i.id == itemId);
+                const price = prompt("Valor do item (ex: 10.50):", currentItem.price || "");
+                if (price !== null) {
+                    const val = parseFloat(price.replace(',', '.'));
+                    const updated = list.items.map(i => i.id == itemId ? {...i, price: isNaN(val) ? null : val} : i);
+                    await updateDoc(doc(db, "artifacts", firebaseConfig.appId, "users", userId, "lists", currentListId), { items: updated });
+                }
+                return;
+            }
+
+            // Check/Uncheck
+            if (e.target.closest('.action-check')) {
+                const updated = list.items.map(i => i.id == itemId ? {...i, checked: !i.checked} : i);
+                await updateDoc(doc(db, "artifacts", firebaseConfig.appId, "users", userId, "lists", currentListId), { items: updated });
+            }
+        });
+
+        // 7. Funções de Ação
+        const handleAddItem = async () => {
+            const input = document.getElementById('item-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            // Divide por vírgula, 'e', ou nova linha
+            const rawItems = text.split(/,|\be\b|\n/).map(s => s.trim()).filter(s => s.length > 0);
+            const list = localLists.find(l => l.id === currentListId);
+            const currentItems = list.items || [];
+            
+            const newItems = rawItems.map(rawName => {
+                // Limpa quantidades no início (ex: "2kg arroz" -> "arroz") para detectar categoria
+                const cleanName = rawName.replace(/^\d+(\w+|\s)*\s+(de\s+)?/i, '');
+                return {
+                    id: Date.now() + Math.random(),
+                    name: rawName.charAt(0).toUpperCase() + rawName.slice(1),
+                    category: detectCategory(cleanName),
+                    price: null,
+                    checked: false
+                };
+            });
+
+            await updateDoc(doc(db, "artifacts", firebaseConfig.appId, "users", userId, "lists", currentListId), {
+                items: [...newItems, ...currentItems]
+            });
+            input.value = '';
+            showToast(`${newItems.length} item(s) adicionado(s)!`);
+        };
+
+        // Listeners de Botões Gerais
+        document.getElementById('login-btn').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value).catch(e => alert("Erro no login: " + e.message));
+        document.getElementById('register-btn').onclick = () => createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-pass').value).catch(e => alert("Erro no cadastro: " + e.message));
+        document.getElementById('logout-btn').onclick = () => signOut(auth);
+        
+        document.getElementById('show-register').onclick = (e) => { e.preventDefault(); document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.remove('hidden'); };
+        document.getElementById('show-login').onclick = (e) => { e.preventDefault(); document.getElementById('register-form').classList.add('hidden'); document.getElementById('login-form').classList.remove('hidden'); };
+        
+        document.getElementById('add-list-btn').onclick = async () => {
+            const name = document.getElementById('new-list-name').value.trim();
+            if(name) {
+                await addDoc(collection(db, "artifacts", firebaseConfig.appId, "users", userId, "lists"), { name, items: [] });
+                document.getElementById('new-list-name').value = '';
+            }
+        };
+        
+        document.getElementById('add-item-btn').onclick = handleAddItem;
+        document.getElementById('item-input').onkeydown = (e) => { if(e.key === 'Enter') { e.preventDefault(); handleAddItem(); }};
+        document.getElementById('back-btn').onclick = () => switchView('home');
+        
+        document.getElementById('clear-checked').onclick = async () => {
+            if(confirm('Remover itens comprados desta lista?')) {
+                const list = localLists.find(l => l.id === currentListId);
+                await updateDoc(doc(db, "artifacts", firebaseConfig.appId, "users", userId, "lists", currentListId), { items: list.items.filter(i => !i.checked) });
+            }
+        };
+
+        document.getElementById('recipe-btn').onclick = () => {
+            const list = localLists.find(l => l.id === currentListId);
+            const ingredients = list.items.filter(i => !i.checked).map(i => i.name).join(' ');
+            if(!ingredients) return showToast("Lista vazia ou tudo comprado!");
+            window.open(`https://www.google.com/search?q=receita+com+${encodeURIComponent(ingredients)}`, '_blank');
+        };
+
+        console.log("App iniciado.");
     </script>
 </body>
 </html>
-
-
-
